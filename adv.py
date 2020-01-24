@@ -69,29 +69,52 @@ for i in range(len(room_graph)):
 # print(new_graph)
 
 opposites = {'n': 's', 's': 'n', 'e': 'w', 'w': 'e'}
+visited = {}
 # TODO DFT search stuff
 def find_wall():
     position = player.current_room.id
     direction = random.choice(player.current_room.get_exits())
     # print('position:', position, 'direction:', direction)
     # print(new_graph[position][direction])
-
-    ## IMPORTANT NEED TO ADD THE NEW_GRAPH TO TRACK WHERE I BEEN AND UPDATE THE GRAPH
+    queue = Queue()
+    queue.enqueue([new_graph[player.current_room.id]])
+    print('qqqq', queue.queue)
     while new_graph[position][direction] == '?':
-        player.travel(direction)
-        print(player.current_room.id, player.current_room.get_exits())
+        path = queue.dequeue()
+        print('path', path)
+        current_room = player.current_room.id
+        print(current_room,direction)
+        if current_room not in visited:
+            print('maybe?')
         if direction not in player.current_room.get_exits():
-            if len(player.current_room.get_exits()) == 1:
-                print('do BFS to find le way home ....BREAKING')
-                break 
-            # TODO if all rooms adjacent are visted also bfs to new route
-            new_direction = player.current_room.get_exits()
-            for x in new_direction:
-                if x != opposites[direction]:
-                    print('cool', x)
-                    new_direction = x
-            direction = new_direction
-            # print('DERPADERP',direction, new_direction)      
+            break
+            for friend_id in self.friendships[current_friend]:
+                    new_path = list(path)
+                    new_path.append(friend_id)
+                    queue.enqueue(new_path)
+
+    #### THIS MOVES AND TRACKS ABOUT HALF.. CANT GET ALL THE BLEEPINGS NEW_GRAPH VERTICES UPDATED.
+    # ## IMPORTANT NEED TO ADD THE NEW_GRAPH TO TRACK WHERE I BEEN AND UPDATE THE GRAPH
+    # while new_graph[position][direction] == '?':
+    #     new_position = player.current_room.id
+    #     traversal_path.append(direction)
+    #     player.travel(direction)
+    #     # print(new_position, player.current_room.id, new_graph[new_position])
+    #     if direction not in player.current_room.get_exits():
+    #         new_graph[new_position][direction] = player.current_room.id
+    #         print('L00k Here!',new_position, new_graph[new_position], player.current_room.id)
+    #         print('change directions!!!!', player.current_room.get_exits())
+    #         if len(player.current_room.get_exits()) == 1:
+    #             print('do BFS to find le way home ....BREAKING')
+    #             break 
+    #         # TODO if all rooms adjacent are visted also bfs to new route
+    #         new_direction = player.current_room.get_exits()
+    #         for x in new_direction:
+    #             if x != opposites[direction]:
+    #                 print('cool', x)
+    #                 new_direction = x
+    #         direction = new_direction
+    #     # print('DERPADERP',new_graph[0])      
 
 
         
@@ -137,7 +160,7 @@ def find_wall():
 
 find_wall()
 print('traversal path', traversal_path)
-
+print(new_graph)
 
 ######################################## End of the Garbage##################
 # TRAVERSAL TEST
