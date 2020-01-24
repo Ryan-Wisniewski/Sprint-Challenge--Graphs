@@ -54,47 +54,141 @@ traversal_path = []
     # convert to list
     # add to traversal path
 # print('yeet?',room_graph)
-new_graph = {}
-for i in range(len(room_graph)):
-    new_copy = room_graph[i][1].copy()
-    if 'n' in new_copy:
-        new_copy['n'] = '?'
-    if 's' in new_copy:
-        new_copy['s'] = '?'
-    if 'e' in new_copy:
-        new_copy['e'] = '?'
-    if 'w' in new_copy:
-        new_copy['w'] = '?'
-    new_graph[i] = new_copy
-# print(new_graph)
 
 opposites = {'n': 's', 's': 'n', 'e': 'w', 'w': 'e'}
-visited = {}
-# TODO DFT search stuff
-def find_wall():
-    position = player.current_room.id
-    direction = random.choice(player.current_room.get_exits())
-    # print('position:', position, 'direction:', direction)
-    # print(new_graph[position][direction])
-    queue = Queue()
-    queue.enqueue([new_graph[player.current_room.id]])
-    print('qqqq', queue.queue)
-    while new_graph[position][direction] == '?':
-        path = queue.dequeue()
-        print('path', path)
-        current_room = player.current_room.id
-        print(current_room,direction)
-        if current_room not in visited:
-            print('maybe?')
-        if direction not in player.current_room.get_exits():
-            break
-            for friend_id in self.friendships[current_friend]:
-                    new_path = list(path)
-                    new_path.append(friend_id)
-                    queue.enqueue(new_path)
+
+class Graph():
+    def __init__(self):
+        self.vertices = {}
+        self.visited = set ()
+        self.add_vertex(player.current_room)
+        self.last = None
+
+    def add_vertex(self, vertex):
+        self.vertices[vertex.id] = {
+            'n': player.current_room.n_to.id if player.current_room.n_to else None,
+            's': player.current_room.s_to.id if player.current_room.s_to else None,
+            'e': player.current_room.e_to.id if player.current_room.e_to else None,
+            'w': player.current_room.w_to.id if player.current_room.w_to else None
+        }
+        for i in ['n', 's', 'e', 'w']:
+            if self.vertices[vertex.id][i] is not None:
+                next_verticy = self.vertices[vertex.id][i]
+                if next_verticy not in self.vertices:
+                    self.vertices[next_verticy] = {}
+                self.vertices[next_verticy][opposites[i]] = vertex.id
+
+    def move(self, direction):
+        direction_check =  player.current_room.get_exits()
+        new_neighbor = random.choice(direction_check)
+        
+        if len(direction_check) == 1:
+            print('yayy BFS SEARCH YOUR WAY BACK FROM HERE')
+        ### TURNNN
+        elif direction not in direction_check:
+            print('change')
+            direction = self.direction_change(direction)
+        print("newnew",direction)
+        player.travel(direction)
+        # print(self.last)
+        # print('direction',direction, self.last)
+        traversal_path.append(direction)
+
+        self.add_vertex(player.current_room)
+    def direction_change(self, direction):
+        direction_check =  player.current_room.get_exits()
+        print('hi', direction, 'hi', opposites[direction])
+        for x in direction_check:
+            if x != opposites[direction]:
+                new_direction = x
+        direction = new_direction
+        print('direction',direction ,new_direction)
+        return direction
+
+    def get_neighbors(self, vertex):
+        # for i in ['n', 's', 'e', 'w']:
+        new_neighbors = player.current_room.get_exits()
+        new_neighbor = random.choice(new_neighbors)
+        # if player.current_room.id not in self.visited:
+        return new_neighbor
+    # TODO DFT search stuff
+    def find_wall(self, current):
+        print('once')
+        direction = self.get_neighbors(player.current_room.id)
+        self.last = direction
+        
+        while player.current_room.id not in self.visited:
+            print('curr_room', player.current_room.id)
+            self.visited.add(player.current_room.id)
+            self.move(direction)
+            
+            # print(player.current_room.id)
+
+
+        # stack = Stack()
+        # stack.push([player.current_room.id])
+        # cur = None    
+        # while stack.size() > 0:
+        #     x = self.get_neighbors(player.current_room.id)
+        #     print('STACK',stack.stack)
+            
+        #     # print('INIT', current.id, 'REE', player.current_room.id)
+        #     path = stack.pop()
+        #     curr = path[-1]
+        #     # print('INIT', current.id, 'REE', player.current_room.id)
+        #     # print('curr', curr)
+        #     if player.current_room.id not in self.visited:
+        #         y = self.get_neighbors(player.current_room.id)
+        #         self.move(y)
+        #         # print('checkHERE',y)
+        #         for next_curr in self.vertices:
+        #             print('DERP',next_curr)
+        #             new_path = list(path)
+        #             new_path.append(next_curr)
+        #             stack.push(new_path)
+        #     print('REEEE',x, y, self.get_neighbors(player.current_room.id))
+        
+
+
+
+
+    # # print('position:', position, 'direction:', direction)
+    # # print(new_graph[position][direction])
+    # queue = Queue()
+    # queue.enqueue([new_graph[player.current_room.id]])
+    # print('qqqq', queue.queue)
+    # while new_graph[position][direction] == '?':
+    #     path = queue.dequeue()
+    #     print('path', path)
+    #     current_room = player.current_room.id
+    #     print(current_room,direction)
+    #     if current_room not in visited:
+    #         print('maybe?')
+    #     if direction not in player.current_room.get_exits():
+    #         break
+    #         for friend_id in self.friendships[current_friend]:
+    #                 new_path = list(path)
+    #                 new_path.append(friend_id)
+    #                 queue.enqueue(new_path)
 
     #### THIS MOVES AND TRACKS ABOUT HALF.. CANT GET ALL THE BLEEPINGS NEW_GRAPH VERTICES UPDATED.
     # ## IMPORTANT NEED TO ADD THE NEW_GRAPH TO TRACK WHERE I BEEN AND UPDATE THE GRAPH
+
+#     new_graph = {}
+# for i in range(len(room_graph)):
+#     new_copy = room_graph[i][1].copy()
+#     if 'n' in new_copy:
+#         new_copy['n'] = '?'
+#     if 's' in new_copy:
+#         new_copy['s'] = '?'
+#     if 'e' in new_copy:
+#         new_copy['e'] = '?'
+#     if 'w' in new_copy:
+#         new_copy['w'] = '?'
+#     new_graph[i] = new_copy
+# print(new_graph)
+
+
     # while new_graph[position][direction] == '?':
     #     new_position = player.current_room.id
     #     traversal_path.append(direction)
@@ -158,9 +252,13 @@ def find_wall():
             # For each edge in the item
                 # add that edge the queu/stack
 
-find_wall()
+graph = Graph()
+# print('GetNeighbors check: ',graph.get_neighbors(player.current_room.id))
+# print('VERTICES HERE',graph.vertices)
+# print('position', player.current_room)
+graph.find_wall(player.current_room)
 print('traversal path', traversal_path)
-print(new_graph)
+print('visted rooms:', graph.visited)
 
 ######################################## End of the Garbage##################
 # TRAVERSAL TEST
