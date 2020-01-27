@@ -14,6 +14,8 @@ class Queue():
 class Stack():
     def __init__(self):
         self.stack = []
+    def head(self):
+        return self.stack[-1]
     def push(self, value):
         self.stack.append(value)
     def pop(self):
